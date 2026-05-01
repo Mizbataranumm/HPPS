@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictor | Indian Real Estate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- 3D Glowing City Background -->
+    <div class="background-container">
+        <div class="stars"></div>
+        <div class="city-skyline"></div>
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <!-- Page 1: Landing -->
+    <section id="landing-page" class="page active">
+        <div class="glass-card landing-card">
+            <h1 class="logo-text">PREDICTOR</h1>
+            <p class="tagline">Smart House Price Prediction for India</p>
+            <div class="login-form">
+                <input type="text" id="username-input" placeholder="Enter your name" class="login-input">
+                <button id="start-btn" class="btn-primary glow-effect full-width">Sign In & Start</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page 2 & 3: Dashboard & Results -->
+    <section id="dashboard-page" class="page">
+        
+        <nav class="top-nav glass-panel">
+            <div class="nav-logo">PREDICTOR</div>
+            <div class="nav-user">
+                <span class="user-greeting">Welcome, Guest</span>
+                <div class="avatar">G</div>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            
+            <!-- Sidebar Navigation / Presets -->
+            <aside class="sidebar glass-panel">
+                <h3>Quick Presets</h3>
+                <p class="subtext">Select an Indian city to auto-fill tier and location defaults.</p>
+                
+                <div class="input-group">
+                    <label>City Preset</label>
+                    <select id="city-preset">
+                        <option value="">-- Select City --</option>
+                        <option value="mumbai" data-tier="1" data-loc="9">Mumbai</option>
+                        <option value="delhi" data-tier="1" data-loc="8.5">Delhi</option>
+                        <option value="bangalore" data-tier="1" data-loc="8.0">Bangalore</option>
+                        <option value="pune" data-tier="1" data-loc="7.5">Pune</option>
+                        <option value="hyderabad" data-tier="1" data-loc="7.5">Hyderabad</option>
+                        <option value="chennai" data-tier="1" data-loc="7.0">Chennai</option>
+                        <option value="jaipur" data-tier="2" data-loc="6.5">Jaipur</option>
+                        <option value="ahmedabad" data-tier="2" data-loc="6.5">Ahmedabad</option>
+                        <option value="lucknow" data-tier="2" data-loc="6.0">Lucknow</option>
+                        <option value="other" data-tier="3" data-loc="5.0">Other / Small Town</option>
+                    </select>
+                </div>
+            </aside>
+
+            <!-- Main Input Form -->
+            <main class="main-content" id="input-section">
+                <div class="glass-card form-card">
+                    <h2>Property Details</h2>
+                    
+                    <form id="prediction-form">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Area (sqft) <span id="area-val">1200</span></label>
+                                <input type="range" id="area" min="500" max="5000" value="1200" oninput="document.getElementById('area-val').innerText = this.value">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>Bedrooms (BHK) <span id="bhk-val">2</span></label>
+                                <input type="range" id="bhk" min="1" max="5" value="2" oninput="document.getElementById('bhk-val').innerText = this.value">
+                            </div>
+
+                            <div class="input-group">
+                                <label>Bathrooms <span id="bath-val">2</span></label>
+                                <input type="range" id="bathrooms" min="1" max="5" value="2" oninput="document.getElementById('bath-val').innerText = this.value">
+                            </div>
+
+                            <div class="input-group">
+                                <label>Age (Years) <span id="age-val">5</span></label>
+                                <input type="range" id="age" min="0" max="50" value="5" oninput="document.getElementById('age-val').innerText = this.value">
+                            </div>
+
+                            <div class="input-group">
+                                <label>Location Score (1-10) <span id="loc-val">7.0</span></label>
+                                <input type="range" id="location_score" min="1" max="10" step="0.5" value="7.0" oninput="document.getElementById('loc-val').innerText = this.value">
+                            </div>
+
+                            <div class="input-group">
+                                <label>Quality Score (1-10) <span id="qual-val">7.0</span></label>
+                                <input type="range" id="quality_score" min="1" max="10" step="0.5" value="7.0" oninput="document.getElementById('qual-val').innerText = this.value">
+                            </div>
+
+                            <div class="input-group">
+                                <label>City Tier</label>
+                                <select id="city_tier">
+                                    <option value="1">Tier 1 (Metros)</option>
+                                    <option value="2" selected>Tier 2 (Emerging)</option>
+                                    <option value="3">Tier 3 (Small Towns)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group checkbox-group">
+                                <input type="checkbox" id="garage">
+                                <label for="garage">Garage / Parking Available</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="predict-btn" class="btn-primary glow-effect full-width">PREDICT PRICE</button>
+                    </form>
+                </div>
+            </main>
+
+            <!-- Results Section (Hidden by default) -->
+            <main class="main-content" id="results-section" style="display: none;">
+                <div class="glass-card result-hero">
+                    <h3>Predicted Price</h3>
+                    <div id="final-price" class="price-text">₹ --</div>
+                    <div id="confidence-range" class="confidence-text">Estimated price: --</div>
+                    <button id="recalculate-btn" class="btn-primary glow-effect" style="margin-top: 15px;">Recalculate New Property</button>
+                </div>
+
+                <div class="results-grid">
+                    <!-- Breakdown Card -->
+                    <div class="glass-card detail-card">
+                        <h4>Manual Calculation Transparency</h4>
+                        <p id="calc-explanation" class="explanation-text"></p>
+                        <div id="market-comparison" class="market-badge"></div>
+                    </div>
+
+                    <!-- Model Info -->
+                    <div class="glass-card detail-card">
+                        <h4>Model Selected</h4>
+                        <div class="model-badge">
+                            <span id="best-model-name">--</span>
+                            <span class="r2-score" id="best-model-r2">R²: --</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="modelChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Feature Importance -->
+                    <div class="glass-card detail-card full-span">
+                        <h4>Feature Importance</h4>
+                        <p class="subtext">Which factors contributed most to this price?</p>
+                        <div class="chart-container large">
+                            <canvas id="featureChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </section>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Analyzing parameters with XGBoost & Random Forest...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
