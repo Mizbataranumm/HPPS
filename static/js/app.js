@@ -77,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 // Populate Results
-                document.getElementById('final-price').innerText = data.formatted_price;
+                // Animate Final Price Count Up
+                animateValue('final-price', 0, data.predicted_lakhs, 1500, data.formatted_price);
+
                 document.getElementById('confidence-range').innerText = data.confidence_range;
                 document.getElementById('calc-explanation').innerHTML = data.explanation;
                 document.getElementById('market-comparison').innerText = data.market_comparison;
@@ -138,6 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: { display: false }
                 },
@@ -202,5 +208,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
+
+    // Helper: Number Count Up Animation
+    function animateValue(id, start, end, duration, finalString) {
+        const obj = document.getElementById(id);
+        let startTimestamp = null;
+        
+        // Determine suffix if needed based on finalString (e.g. ' Cr' or ' L')
+        const suffix = finalString.includes('Cr') ? ' Cr' : ' L';
+        const prefix = '₹ ';
+
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            
+            // easeOutQuart
+            const easeProgress = 1 - Math.pow(1 - progress, 4);
+            const currentVal = (easeProgress * (end - start) + start).toFixed(2);
+            
+            obj.innerText = prefix + currentVal + suffix;
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                obj.innerText = finalString; // Ensure exact final string matches API format
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 });
