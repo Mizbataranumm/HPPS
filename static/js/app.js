@@ -218,6 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Determine suffix if needed based on finalString (e.g. ' Cr' or ' L')
         const suffix = finalString.includes('Cr') ? ' Cr' : ' L';
         const prefix = '₹ ';
+        
+        // If final string has Cr, the target end value for the animation should be scaled down by 100
+        const targetValue = finalString.includes('Cr') ? end / 100 : end;
 
         const step = (timestamp) => {
             if (!startTimestamp) startTimestamp = timestamp;
@@ -225,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // easeOutQuart
             const easeProgress = 1 - Math.pow(1 - progress, 4);
-            const currentVal = (easeProgress * (end - start) + start).toFixed(2);
+            const currentVal = (easeProgress * (targetValue - start) + start).toFixed(2);
             
             obj.innerText = prefix + currentVal + suffix;
             

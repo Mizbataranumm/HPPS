@@ -91,17 +91,37 @@ def predict():
         else:
             market_comparison = f"This price is {abs(diff_percent):.1f}% below average market price for similar properties in Tier {int(city_tier)} cities."
 
-        # Fake step-by-step logic text that explains things intuitively
-        # Since tree based models are non linear we create a proxy explanation based on input values
-        base_rate = 6000 if city_tier == 1 else (3500 if city_tier == 2 else 2000)
-        base_calc = area * base_rate
-        base_lakhs = base_calc / 100000
+        # True step-by-step logic text that explains things intuitively
+        # Since the model learned from data_generator.py, we can mirror the exact math
+        if city_tier == 1:
+            base_rate = 4000 + (location_score - 4.0) * 900
+        elif city_tier == 2:
+            base_rate = 1500 + (location_score - 4.0) * 500
+        else:
+            base_rate = 800 + (location_score - 4.0) * 200
+            
+        base_price = area * base_rate
+        base_lakhs = base_price / 100000
         
+        layout_premium = (bhk * 100000) + (bathrooms * 50000)
+        age_deduction = base_price * (age * 0.005)
+        
+        # Calculate actual values for text
+        layout_premium_lakhs = layout_premium / 100000
+        age_deduction_lakhs = age_deduction / 100000
+        depreciation_pct = age * 0.5
+        
+        qual_mult = 1.0 + ((quality_score - 7.0) * 0.05)
+        qual_diff_pct = abs(qual_mult - 1.0) * 100
+        qual_word = "premium" if qual_mult >= 1.0 else "discount"
+        
+        garage_text = f" Included {format_inr(2.0)} garage premium." if garage == 1 else ""
+
         explanation = (
-            f"Step 1: Starting with a base estimated rate of ₹{base_rate}/sqft for a Tier {int(city_tier)} city, the base area value is {format_inr(base_lakhs)}.<br>"
-            f"Step 2: Adjusted for {int(bhk)} Bedrooms and {int(bathrooms)} Bathrooms layout structure.<br>"
-            f"Step 3: Deducted approximately {int(age)}% for {int(age)} years of property age depreciation.<br>"
-            f"Step 4: Applied Location Score premium ({location_score}/10) and Quality Score ({quality_score}/10)."
+            f"Step 1: Base estimated rate is ₹{int(base_rate)}/sqft (Tier {int(city_tier)}, Loc {location_score}/10), setting base value at {format_inr(base_lakhs)}.<br>"
+            f"Step 2: Added {format_inr(layout_premium_lakhs)} for {int(bhk)} BHK & {int(bathrooms)} Bathrooms layout.{garage_text}<br>"
+            f"Step 3: Deducted {depreciation_pct:.1f}% ({format_inr(age_deduction_lakhs)}) for {int(age)} years of age depreciation.<br>"
+            f"Step 4: Applied a {qual_diff_pct:.1f}% quality {qual_word} based on score ({quality_score}/10)."
         )
 
         return jsonify({

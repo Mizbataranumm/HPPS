@@ -6,7 +6,7 @@ import os
 np.random.seed(42)
 random.seed(42)
 
-NUM_RECORDS = 1500
+NUM_RECORDS = 5000
 
 def generate_data(num_records):
     data = []
